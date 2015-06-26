@@ -11,12 +11,19 @@ module Middleman
       resources.each do |resource|
         if resource.data["alias"]
           Array(resource.data["alias"]).each do |mm_alias|
-            alias_url = mm_alias
+            if mm_alias.kind_of?(Array)
+              alias_url = mm_alias[0]
+              alias_url_params = mm_alias[1]
+            else
+              alias_url = mm_alias
+              alias_url_params = ""
+            end
+            
             alias_url += "index.html" if alias_url.match(/\/$/)
             existing_resource = resources.select{|r| r.destination_path == alias_url }.first
             next if existing_resource
 
-            resources.push Middleman::Sitemap::AliasResource.new(@app.sitemap, alias_url, resource.url)
+            resources.push Middleman::Sitemap::AliasResource.new(@app.sitemap, alias_url, alias_url_params, resource.url)
             #Sitemap::Resource.new(@app.sitemap, alias_url).tap do |p|
               #p.proxy_to("alias.html")
               #p.add_metadata locals: {
